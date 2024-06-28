@@ -3,18 +3,16 @@ import scrapy
 class CeilingLightsSpider(scrapy.Spider):
     name = 'ceiling_lights'
     allowed_domains = ['divan.ru']
-    start_urls = ['https://www.divan.ru/category/potolocnye-svetilniki']
+    start_urls = ['https://divan.ru/category/potolocnye-svetilniki']
 
     def parse(self, response):
-        # Находим первый товар на странице
-        product = response.css('div.product-card__info').get()
+        # Находим товары на странице
+        products = response.css('div._Ud0k')
+        for product in products:
+            yield {
+                "name": product.css('div.lsooF span::text').get(),
+                "price": product.css('div.pY3d2 span::text').get(),
+                "url": product.css('a').attrib['href']
+            }
 
-        if product:
-            title = response.css('div.product-card__title::text').get()
-            price = response.css('div.product-price__current::text').get()
-            link = response.css('a.product-card__link::attr(href)').get()
 
-            # Выводим данные в терминал
-            print(f"Название: {title.strip() if title else 'N/A'}")
-            print(f"Цена: {price.strip() if price else 'N/A'}")
-            print(f"Ссылка: {response.urljoin(link) if link else 'N/A'}")
